@@ -1,0 +1,313 @@
+{% extends "layouts/base1.html" %}
+
+{% block Maincrear_ubicacion %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.45);
+    }
+    .form-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #ec4c45;
+        border-bottom: 2px solid #ec4c45;
+        padding-bottom: 10px;
+    }
+    .btn-custom {
+        width: 100%;
+        padding: 12px;
+        font-weight: bold;
+        background-color: #ec4c45 !important;
+        border-color: #ec4c45 !important;
+        color: #ffffff !important;
+    }
+    #btn-toggle-camara {
+        background-color: #ec4c45 !important;
+        border-color: #ec4c45 !important;
+        color: #ffffff !important;
+    }
+    #btn-toggle-camara i { color: #ffffff !important; }
+    #camera-preview video {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+    }
+    .dropdown-menu .dropdown-item:hover,
+    .dropdown-menu .dropdown-item.active,
+    .dropdown-menu .dropdown-item:focus {
+        background-color: #ec4c45 !important;
+        color: #ffffff !important;
+    }
+    .dropdown-toggle:hover,
+    .dropdown-toggle:focus,
+    .dropdown-toggle.show {
+        background-color: #ec4c45 !important;
+        color: #ffffff !important;
+        border-color: #ec4c45 !important;
+    }
+</style>
+
+<div class="form-container">
+    <div class="alert-container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <h2 class="form-title">Crear Nuevo Palet</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Cámara -->
+        <div class="mb-3 text-center">
+            <div id="camera-preview" style="width: 300px; height: 150px; margin: 0 auto; background-color: #000; border-radius: 8px; overflow: hidden;"></div>
+        </div>
+        <div class="mb-3 text-center">
+            <p>Cámara para escanear código de barras</p>
+            <button type="button" id="btn-toggle-camara" class="btn mb-2">
+                <i class="fa-solid fa-camera"></i> Abrir Cámara
+            </button>
+        </div>
+
+        <!-- Código y descripción -->
+        <div class="mb-3">
+            <label for="codigo" class="form-label">Código</label>
+            <input type="text" class="form-control" id="codigo" name="codigo" required>
+        </div>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción del Palet</label>
+            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+        </div>
+
+        <!-- Rack -->
+        <div class="mb-3">
+            <label class="form-label">Rack</label>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownPasillo" data-bs-toggle="dropdown" aria-expanded="false">
+                    Selecciona un rack
+                </button>
+                <ul class="dropdown-menu w-100" id="dropdown-menu-pasillo">
+                    {% for p in obtener_racks %}
+                        <li><a class="dropdown-item" href="#" data-id="{{ p.id }}">{{ p.titulo }} - {{ p.descripcion }}</a></li>
+                    {% empty %}
+                        <li><a class="dropdown-item disabled" href="#">No hay racks disponibles</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <input type="hidden" id="pasillo" name="pasillo" required>
+        </div>
+
+        <!-- Nivel -->
+        <div class="mb-3">
+            <label class="form-label">Nivel</label>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownPlanta" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                    Selecciona un nivel
+                </button>
+                <ul class="dropdown-menu w-100" id="dropdown-menu-nivel">
+                    <li><a class="dropdown-item disabled" href="#">Selecciona un rack primero</a></li>
+                </ul>
+            </div>
+            <input type="hidden" id="planta" name="planta" required>
+        </div>
+
+        <!-- Sección -->
+        <div class="mb-3">
+            <label class="form-label">Sección</label>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownSeccion" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                    Selecciona una sección
+                </button>
+                <ul class="dropdown-menu w-100" id="dropdown-menu-seccion">
+                    <li><a class="dropdown-item disabled" href="#">Selecciona un nivel primero</a></li>
+                </ul>
+            </div>
+            <input type="hidden" id="seccion" name="seccion">
+        </div>
+
+        <!-- Proveedor -->
+        <div class="mb-3">
+            <label class="form-label">Proveedor</label>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="dropdownProveedor" data-bs-toggle="dropdown" aria-expanded="false">
+                    Selecciona un proveedor
+                </button>
+                <ul class="dropdown-menu w-100" id="dropdown-menu-proveedor">
+                    {% for pr in obtener_proveedores %}
+                        <li><a class="dropdown-item" href="#" data-id="{{ pr.id }}">{{ pr.nombre }}</a></li>
+                    {% empty %}
+                        <li><a class="dropdown-item disabled" href="#">No hay proveedores registrados</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <input type="hidden" id="proveedor" name="proveedor" required>
+        </div>
+
+        <button type="submit" class="btn btn-custom">Guardar</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const codigoInput = document.getElementById("codigo");
+    const toggleCamaraBtn = document.getElementById("btn-toggle-camara");
+    let quaggaIniciado = false;
+
+    // Manejo de cámara
+    toggleCamaraBtn.addEventListener("click", function() {
+        if(!quaggaIniciado){
+            Quagga.init({
+                inputStream: { 
+                    name: "Live", 
+                    type: "LiveStream", 
+                    target: document.querySelector('#camera-preview'), 
+                    constraints: { facingMode: "environment" } 
+                },
+                decoder: { 
+                    readers: ["code_128_reader","ean_reader","ean_8_reader","upc_reader","upc_e_reader"] 
+                }
+            }, function(err) { 
+                if(err) { 
+                    console.error(err); 
+                    alert("Error al iniciar la cámara");
+                    return; 
+                } 
+                Quagga.start(); 
+                quaggaIniciado = true;
+                toggleCamaraBtn.innerHTML = '<i class="fa-solid fa-video-slash"></i> Cerrar Cámara';
+            });
+
+            Quagga.onDetected(function(result) {
+                if(result.codeResult){
+                    codigoInput.value = result.codeResult.code;
+                    Quagga.stop();
+                    quaggaIniciado = false;
+                    toggleCamaraBtn.innerHTML = '<i class="fa-solid fa-camera"></i> Abrir Cámara';
+                }
+            });
+        } else {
+            Quagga.stop();
+            quaggaIniciado = false;
+            toggleCamaraBtn.innerHTML = '<i class="fa-solid fa-camera"></i> Abrir Cámara';
+        }
+    });
+
+    // Función genérica para manejar dropdowns
+    function handleDropdown(menuId, hiddenInputId, buttonId){
+        const menu = document.getElementById(menuId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+        const button = document.getElementById(buttonId);
+
+        menu.addEventListener("click", function(e){
+            if(e.target && e.target.matches("a.dropdown-item") && !e.target.classList.contains("disabled")){
+                e.preventDefault();
+                const selectedText = e.target.textContent;
+                const selectedId = e.target.dataset.id;
+                button.textContent = selectedText;
+                hiddenInput.value = selectedId;
+                menu.querySelectorAll("a.dropdown-item").forEach(a => a.classList.remove("active"));
+                e.target.classList.add("active");
+            }
+        });
+    }
+
+    // Inicializar dropdowns
+    handleDropdown("dropdown-menu-pasillo", "pasillo", "dropdownPasillo");
+    handleDropdown("dropdown-menu-nivel", "planta", "dropdownPlanta");
+    handleDropdown("dropdown-menu-seccion", "seccion", "dropdownSeccion");
+    handleDropdown("dropdown-menu-proveedor", "proveedor", "dropdownProveedor");
+
+    // Cargar niveles cuando se selecciona un rack
+    document.getElementById("dropdown-menu-pasillo").addEventListener("click", function(e){
+        if(e.target && e.target.matches("a.dropdown-item") && !e.target.classList.contains("disabled")){
+            const rackId = e.target.dataset.id;
+            
+            fetch("{% url 'get_niveles_por_rack' %}?rack_id=" + rackId)
+                .then(response => response.json())
+                .then(data => {
+                    const nivelMenu = document.getElementById("dropdown-menu-nivel");
+                    const nivelButton = document.getElementById("dropdownPlanta");
+                    const seccionMenu = document.getElementById("dropdown-menu-seccion");
+                    const seccionButton = document.getElementById("dropdownSeccion");
+                    
+                    nivelMenu.innerHTML = '';
+                    
+                    if(data.length > 0){
+                        data.forEach(n => {
+                            const li = document.createElement("li");
+                            li.innerHTML = `<a class="dropdown-item" href="#" data-id="${n.id}">Nivel ${n.titulo} - ${n.descripcion}</a>`;
+                            nivelMenu.appendChild(li);
+                        });
+                        nivelButton.disabled = false;
+                    } else {
+                        nivelMenu.innerHTML = '<li><a class="dropdown-item disabled" href="#">No hay niveles disponibles</a></li>';
+                        nivelButton.disabled = true;
+                    }
+                    
+                    // Resetear nivel y sección
+                    nivelButton.textContent = "Selecciona un nivel";
+                    document.getElementById("planta").value = "";
+                    
+                    seccionMenu.innerHTML = '<li><a class="dropdown-item disabled" href="#">Selecciona un nivel primero</a></li>';
+                    seccionButton.textContent = "Selecciona una sección";
+                    seccionButton.disabled = true;
+                    document.getElementById("seccion").value = "";
+                })
+                .catch(error => {
+                    console.error("Error al cargar niveles:", error);
+                    alert("Error al cargar los niveles");
+                });
+        }
+    });
+
+    // Cargar secciones cuando se selecciona un nivel
+    document.getElementById("dropdown-menu-nivel").addEventListener("click", function(e){
+        if(e.target && e.target.matches("a.dropdown-item") && !e.target.classList.contains("disabled")){
+            const nivelId = e.target.dataset.id;
+            
+            fetch("{% url 'get_secciones_por_nivel' %}?planta_id=" + nivelId)
+                .then(response => response.json())
+                .then(data => {
+                    const seccionMenu = document.getElementById("dropdown-menu-seccion");
+                    const seccionButton = document.getElementById("dropdownSeccion");
+                    
+                    seccionMenu.innerHTML = '';
+                    
+                    if(data.length > 0){
+                        data.forEach(s => {
+                            const li = document.createElement("li");
+                            li.innerHTML = `<a class="dropdown-item" href="#" data-id="${s.id}">Sección ${s.codigo} - ${s.descripcion}</a>`;
+                            seccionMenu.appendChild(li);
+                        });
+                        seccionButton.disabled = false;
+                    } else {
+                        seccionMenu.innerHTML = '<li><a class="dropdown-item disabled" href="#">No hay secciones disponibles (se creará automáticamente)</a></li>';
+                        seccionButton.disabled = true;
+                    }
+                    
+                    seccionButton.textContent = "Selecciona una sección";
+                    document.getElementById("seccion").value = "";
+                })
+                .catch(error => {
+                    console.error("Error al cargar secciones:", error);
+                    alert("Error al cargar las secciones");
+                });
+        }
+    });
+});
+</script>
+
+<footer class="text-center mt-5 mb-4 text-muted">
+    <p>Tiliners © 2030</p>
+</footer>
+{% endblock Maincrear_ubicacion %}

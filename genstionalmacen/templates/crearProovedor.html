@@ -1,0 +1,123 @@
+{% extends "layouts/base1.html" %}
+
+{% block Maincrear_proovedor %}
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.45);
+    }
+    .form-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #ec4c45;
+        border-bottom: 2px solid #ec4c45;
+        padding-bottom: 10px;
+    }
+    .btn-custom {
+        width: 100%;
+        padding: 12px;
+        font-weight: bold;
+        background-color: #ec4c45 !important;
+        border-color: #ec4c45 !important;
+        color: #ffffff !important;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-custom:hover {
+        background-color: #ffffff !important;
+        color: #ec4c45 !important;
+        border-color: #ec4c45 !important;
+    }
+    .btn-custom.clicked {
+        background-color: #ffffff !important;
+        color: #ec4c45 !important;
+        border-color: #ec4c45 !important;
+    }
+    .alert-container {
+        max-width: 700px;
+        margin: 20px auto;
+    }
+    .alert {
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="container">
+    <!-- Mensajes de alerta -->
+    <div class="alert-container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <div class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% else %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        // Cerrar automáticamente las alertas después de 3 segundos
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 3000);
+    </script>
+
+    <!-- Formulario de creación -->
+    <div class="form-container">
+        <h2 class="form-title">Crear Nuevo Proveedor</h2>
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="nomproovedor" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nomproovedor" name="nomproovedor" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="telproovedor" class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" id="telproovedor" name="telproovedor" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="corproovedor" class="form-label">Correo</label>
+                <input type="email" class="form-control" id="corproovedor" name="corproovedor" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="dirproovedor" class="form-label">Dirección</label>
+                <textarea class="form-control" id="dirproovedor" name="dirproovedor" rows="3" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-custom" id="guardarProveedorBtn">Crear Proveedor</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Cambiar colores del botón al hacer click
+    const guardarBtn = document.getElementById("guardarProveedorBtn");
+    guardarBtn.addEventListener("click", function() {
+        this.classList.toggle("clicked");
+    });
+</script>
+
+<footer class="text-center mt-5 mb-4 text-muted">
+    <p>Tiliners © 2030</p>
+</footer>
+{% endblock Maincrear_proovedor %}

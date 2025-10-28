@@ -1,0 +1,117 @@
+<div id="chatbot" style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    max-height: 400px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    z-index: 9999;
+">
+    <div id="chatbot-header" style="
+        background: #ec4c45;
+        color: white;
+        padding: 10px;
+        cursor: pointer;
+        text-align: center;
+    ">Chatbot Deepseek</div>
+
+    <div id="chatbot-body" style="
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+    "></div>
+
+    <div id="chatbot-input" style="
+        display: none;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    ">
+        <input type="text" id="messageInput" placeholder="Escribe algo..." style="
+            width: 100%;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        ">
+    </div>
+</div>
+
+<script>
+const header = document.getElementById('chatbot-header');
+const body = document.getElementById('chatbot-body');
+const inputContainer = document.getElementById('chatbot-input');
+const input = document.getElementById('messageInput');
+
+// Mostrar/ocultar chat al hacer click en header
+header.addEventListener('click', () => {
+    const visible = body.style.display === 'flex';
+    body.style.display = visible ? 'none' : 'flex';
+    inputContainer.style.display = visible ? 'none' : 'block';
+});
+
+// Función para enviar mensaje
+async function sendMessage(message) {
+    if (!message) return;
+
+    // Mostrar mensaje del usuario
+    const userMsg = document.createElement('div');
+    userMsg.textContent = message;
+    userMsg.style.alignSelf = 'flex-end';
+    userMsg.style.background = '#ec4c45';
+    userMsg.style.color = 'white';
+    userMsg.style.padding = '5px 10px';
+    userMsg.style.borderRadius = '8px';
+    body.appendChild(userMsg);
+    body.scrollTop = body.scrollHeight;
+
+    input.value = '';
+
+    try {
+        const response = await fetch('https://api.deepseek.com/v1/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer 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'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        const botMsg = document.createElement('div');
+        botMsg.textContent = data.reply || 'No hay respuesta';
+        botMsg.style.alignSelf = 'flex-start';
+        botMsg.style.background = '#f1f1f1';
+        botMsg.style.color = 'black';
+        botMsg.style.padding = '5px 10px';
+        botMsg.style.borderRadius = '8px';
+        body.appendChild(botMsg);
+        body.scrollTop = body.scrollHeight;
+
+    } catch (error) {
+        const errorMsg = document.createElement('div');
+        errorMsg.textContent = 'Error al conectarse a la API';
+        errorMsg.style.color = 'red';
+        body.appendChild(errorMsg);
+        body.scrollTop = body.scrollHeight;
+        console.error(error);
+    }
+}
+
+// Detectar Enter
+input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage(input.value);
+    }
+});
+</script>

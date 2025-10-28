@@ -1,0 +1,673 @@
+{% extends "layouts/base1.html" %}
+{% block Mainindex %}
+<style>
+    /* Cards */
+    .card-menu {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        box-shadow: 0 16px 35px rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .card-menu:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 22px 45px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Color del ícono */
+    .card-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: #ec4c45;
+        transition: color 0.3s ease;
+    }
+
+    .card-menu:hover .card-icon {
+        color: #d43b36;
+    }
+
+    /* Título y texto */
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .card-text {
+        color: #555;
+        font-size: 1rem;
+    }
+
+    /* Botón */
+    .btn-card {
+        background: #ec4c45;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    /* Hover del botón: invertir colores */
+    .btn-card:hover {
+        background: white;
+        color: #ec4c45;
+        border: 2px solid #ec4c45;
+        transform: scale(1.05);
+    }
+
+    /* Tabla de Ubicaciones */
+    .table-container {
+        background-color: white;
+        padding: 25px;
+        margin-top: 50px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .table thead {
+        background-color: #667eea;
+        color: white;
+        font-weight: 600;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .table td,
+    .table th {
+        vertical-align: middle;
+    }
+
+    .table caption {
+        caption-side: top;
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    /* Estilos del Chatbot */
+    #chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    #chatbot-toggle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ec4c45 0%, #d43b36 100%);
+        border: none;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(236, 76, 69, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #chatbot-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(236, 76, 69, 0.6);
+    }
+
+    #chatbot-window {
+        display: none;
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 380px;
+        height: 550px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        flex-direction: column;
+        overflow: hidden;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #chatbot-header {
+        background: linear-gradient(135deg, #ec4c45 0%, #d43b36 100%);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #chatbot-header h4 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    #chatbot-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+    }
+
+    #chatbot-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    #chatbot-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message.user {
+        justify-content: flex-end;
+    }
+
+    .message-content {
+        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        word-wrap: break-word;
+    }
+
+    .message.bot .message-content {
+        background: white;
+        color: #333;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .message.user .message-content {
+        background: #ec4c45;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    #chatbot-input-container {
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 10px;
+    }
+
+    #chatbot-input {
+        flex: 1;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        padding: 10px 18px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    #chatbot-input:focus {
+        border-color: #ec4c45;
+    }
+
+    #chatbot-send {
+        background: #ec4c45;
+        border: none;
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 18px;
+    }
+
+    #chatbot-send:hover {
+        background: #d43b36;
+        transform: scale(1.05);
+    }
+
+    #chatbot-send:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: scale(1);
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        width: fit-content;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background: #ec4c45;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+        0%, 60%, 100% {
+            transform: translateY(0);
+        }
+        30% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Scrollbar personalizado */
+    #chatbot-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #chatbot-messages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    #chatbot-messages::-webkit-scrollbar-thumb {
+        background: #ec4c45;
+        border-radius: 3px;
+    }
+
+    #chatbot-messages::-webkit-scrollbar-thumb:hover {
+        background: #d43b36;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        #chatbot-window {
+            width: calc(100vw - 40px);
+            height: 500px;
+            max-height: calc(100vh - 140px);
+            right: 20px;
+            bottom: 90px;
+        }
+
+        #chatbot-toggle {
+            width: 55px;
+            height: 55px;
+            font-size: 24px;
+        }
+
+        #chatbot-messages {
+            padding: 15px;
+        }
+
+        .message-content {
+            max-width: 85%;
+            font-size: 14px;
+            padding: 10px 14px;
+        }
+
+        #chatbot-input-container {
+            padding: 12px;
+        }
+
+        #chatbot-input {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        #chatbot-send {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+        }
+
+        #chatbot-header {
+            padding: 15px;
+        }
+
+        #chatbot-header h4 {
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #chatbot-window {
+            width: calc(100vw - 20px);
+            height: 450px;
+            max-height: calc(100vh - 120px);
+            right: 10px;
+            bottom: 80px;
+        }
+
+        #chatbot-container {
+            bottom: 15px;
+            right: 15px;
+        }
+
+        #chatbot-toggle {
+            width: 50px;
+            height: 50px;
+            font-size: 22px;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Header -->
+    <header class="text-center mb-5 py-4">
+        <h1 class="display-4"><i class="bi bi-box" style="color:#ec4c45;"></i></h1>
+        <h2 class="display-4">Gestiona tus palets</h2>
+    </header>
+
+    <!-- Cards -->
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4 col-lg-4">
+            <div class="card card-menu text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-box-seam card-icon"></i>
+                    <h3 class="card-title">Asignar Ubicación Palet</h3>
+                    <p class="card-text px-3">Gestiona la asignación del palet</p>
+                    <a href="{% url 'crear_ubicacion' %}" class="btn btn-card mt-3 rounded-pill px-4">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Seguimiento -->
+        <div class="col-md-4 col-lg-4">
+            <div class="card card-menu text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-search card-icon"></i>
+                    <h3 class="card-title">Seguimiento</h3>
+                    <p class="card-text px-3">Seguimiento del palet</p>
+                    <a href="{% url 'index' %}" class="btn btn-card mt-3 rounded-pill px-4">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-4">
+            <div class="card card-menu text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-gear card-icon"></i>
+                    <h3 class="card-title">Panel de Control</h3>
+                    <p class="card-text px-3">Accede a todas las funcionalidades de creación</p>
+                    <a href="{% url 'panel_control' %}" class="btn btn-card mt-3 rounded-pill px-4">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot -->
+<div id="chatbot-container">
+    <button id="chatbot-toggle" aria-label="Abrir chat">
+        <i class="bi bi-chat-dots-fill"></i>
+    </button>
+    
+    <div id="chatbot-window">
+        <div id="chatbot-header">
+            <h4><i class="bi bi-robot"></i> Yarbis</h4>
+            <button id="chatbot-close" aria-label="Cerrar chat">×</button>
+        </div>
+        
+        <div id="chatbot-messages">
+            <div class="message bot">
+                <div class="message-content">
+                    ¡Hola! Soy Yarbis, tu asistente especializado en logística de almacenes. Estoy aquí para ayudarte con la gestión de palets, inventarios y procesos del sistema. ¿En qué puedo asistirte?
+                </div>
+            </div>
+        </div>
+        
+        <div id="chatbot-input-container">
+            <input type="text" id="chatbot-input" placeholder="Escribe tu mensaje..." autocomplete="off">
+            <button id="chatbot-send" aria-label="Enviar mensaje">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chatbot functionality
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotWindow = document.getElementById('chatbot-window');
+    const chatbotClose = document.getElementById('chatbot-close');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotSend = document.getElementById('chatbot-send');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    let conversationHistory = [
+        {
+            role: "system",
+            content: `ROL DEL AGENTE:
+Eres Yarbis, un asistente inteligente especializado en logística de almacenes e inventarios, integrado dentro de un aplicativo web desarrollado en Django para la gestión digital de palets. Tu función principal es apoyar al usuario en la operación, control y comprensión de los procesos logísticos asociados al sistema.
+
+CONTEXTO DEL SISTEMA:
+El aplicativo gestiona digitalmente un almacén mediante la creación de racks, niveles y secciones; permite registrar proveedores, ingresar palets, ubicarlos en posiciones específicas y dar seguimiento a su recorrido por las zonas del almacén (recepción, almacenamiento, preparación y salida). Además, el sistema integra una base de datos en SQLite y conexión con Google Sheets para respaldar la información, junto con un historial de movimientos y un módulo de edición de registros.
+
+TU CAMPO DE CONOCIMIENTO - RESPONDE SOLO SOBRE:
+- Logística de almacenamiento e inventarios
+- Trazabilidad, control de stock, picking, rotación de inventarios
+- ODS 12 y sostenibilidad logística
+- Procesos internos del aplicativo (creación de racks, registro de palets, búsqueda de ubicaciones, uso de base de datos, consultas sobre proveedores, etc.)
+- Buenas prácticas en gestión de almacenes, eficiencia operativa y digitalización
+- Diferencias entre las zonas del almacén (recepción, almacenamiento, preparación y salida)
+- Indicadores logísticos como fill rate, lead time o rotación de inventarios
+- Relación del proyecto con los principios de la Logística 4.0 y el ODS 12
+
+LÍMITES ESTRICTOS - MUY IMPORTANTE:
+- NO respondas NINGUNA pregunta que esté fuera del ámbito logístico, académico o técnico del aplicativo
+- NO proporciones información sobre temas generales, entretenimiento, cultura, historia, ciencia no relacionada con logística, recetas, deportes, política, religión, o cualquier otro tema ajeno a la logística y gestión de almacenes
+- Si la pregunta NO está relacionada con logística de almacenes, inventarios, palets, o el funcionamiento del aplicativo, debes responder ÚNICAMENTE: "Lo siento, soy un asistente especializado en logística de almacenes y gestión de palets. No estoy diseñado para responder preguntas sobre ese tema. ¿Puedo ayudarte con alguna consulta relacionada con el sistema de gestión de almacenes?"
+- NO des información ni respuestas sobre temas fuera de tu especialización, BAJO NINGUNA CIRCUNSTANCIA
+- Si te preguntan sobre tu nombre, responde que te llamas Yarbis
+
+ESTILO DE COMUNICACIÓN:
+- Utiliza un tono formal, técnico y educativo
+- Emplea vocabulario sencillo y estructurado
+- Sé claro, preciso y evita ambigüedades
+- Cuando sea necesario, ofrece pasos, ejemplos o recomendaciones concretas
+- Responde SIEMPRE en español
+
+VALIDACIÓN DE PREGUNTAS:
+Antes de responder cualquier pregunta, verifica que esté relacionada con:
+✓ Logística, almacenes, inventarios, palets
+✓ Procesos del sistema (racks, niveles, secciones, proveedores, zonas)
+✓ Trazabilidad, picking, rotación, indicadores logísticos
+✓ Sostenibilidad logística, ODS 12, Logística 4.0
+
+Si NO cumple con lo anterior, rechaza la pregunta cortésmente y NO proporciones la información solicitada.`
+        }
+    ];
+
+    // Toggle chatbot window
+    chatbotToggle.addEventListener('click', () => {
+        chatbotWindow.style.display = chatbotWindow.style.display === 'flex' ? 'none' : 'flex';
+        if (chatbotWindow.style.display === 'flex') {
+            chatbotInput.focus();
+        }
+    });
+
+    chatbotClose.addEventListener('click', () => {
+        chatbotWindow.style.display = 'none';
+    });
+
+    // Send message on button click
+    chatbotSend.addEventListener('click', sendMessage);
+
+    // Send message on Enter key
+    chatbotInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.textContent = content;
+        
+        messageDiv.appendChild(messageContent);
+        chatbotMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot';
+        typingDiv.id = 'typing-indicator';
+        
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator';
+        indicator.innerHTML = '<span></span><span></span><span></span>';
+        
+        typingDiv.appendChild(indicator);
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    async function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message) return;
+
+        // Disable input and button
+        chatbotInput.disabled = true;
+        chatbotSend.disabled = true;
+
+        // Add user message
+        addMessage(message, true);
+        chatbotInput.value = '';
+
+        // Add to conversation history
+        conversationHistory.push({
+            role: "user",
+            content: message
+        });
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer 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',
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'Sistema de Gestión de Palets - Yarbis'
+                },
+                body: JSON.stringify({
+                    model: 'meta-llama/llama-3.2-3b-instruct:free',
+                    messages: conversationHistory,
+                    temperature: 0.3,
+                    max_tokens: 500
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Error en la respuesta de la API');
+            }
+
+            const data = await response.json();
+            const botResponse = data.choices[0].message.content;
+
+            // Add to conversation history
+            conversationHistory.push({
+                role: "assistant",
+                content: botResponse
+            });
+
+            // Remove typing indicator
+            removeTypingIndicator();
+
+            // Add bot response
+            addMessage(botResponse);
+
+            // Trim conversation history
+            trimConversationHistory();
+
+        } catch (error) {
+            console.error('Error:', error);
+            removeTypingIndicator();
+            addMessage('Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.');
+        } finally {
+            // Re-enable input and button
+            chatbotInput.disabled = false;
+            chatbotSend.disabled = false;
+            chatbotInput.focus();
+        }
+    }
+
+    // Keep conversation history manageable (last 10 messages + system message)
+    function trimConversationHistory() {
+        if (conversationHistory.length > 21) { // system message + 20 messages (10 pairs)
+            conversationHistory = [
+                conversationHistory[0], // Keep system message
+                ...conversationHistory.slice(-20) // Keep last 20 messages
+            ];
+        }
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,421 @@
+{% extends "layouts/base1.html" %}
+{% load static %}
+
+{% block Maincrear_seccion %}
+<style>
+.form-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.45);
+    position: relative;
+}
+.form-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ec4c45;
+    border-bottom: 2px solid #ec4c45;
+    padding-bottom: 10px;
+}
+.btn-guardar {
+    background-color: #ec4c45 !important;
+    color: #ffffff !important;
+    border: 1px solid #ec4c45 !important;
+    transition: all 0.3s;
+}
+.btn-guardar:hover {
+    background-color: #ffffff !important;
+    color: #ec4c45 !important;
+    border-color: #ec4c45 !important;
+}
+.dropdown-toggle {
+    background-color: #ffffff !important;
+    color: #000 !important;
+    border: 1px solid #ced4da !important;
+}
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item.active {
+    background-color: #ec4c45 !important;
+    color: #ffffff !important;
+}
+.level-card {
+    flex: 1 1 120px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 500;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.levels-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+.action-card {
+    flex: 0 0 50px;
+    height: 50px;
+    border-radius: 8px;
+    background-color: #ec4c45;
+    color: #ffffff;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.action-card:hover {
+    background-color: #ffffff;
+    color: #ec4c45;
+    border: 1px solid #ec4c45;
+}
+.btn-eliminar-card {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 5px 12px;
+    background-color: #ec4c45;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.btn-eliminar-card:hover {
+    background-color: #a71d2a;
+}
+.card-wrapper {
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    margin-right: 12px;
+    margin-bottom: 12px;
+}
+/* MODAL */
+.modal-confirm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+.modal-content-confirm {
+    background: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.45);
+}
+.modal-content-confirm h4 {
+    color: #ec4c45;
+    margin-bottom: 15px;
+}
+.modal-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+.btn-confirmar, .btn-cancelar {
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-confirmar {
+    background-color: #ec4c45;
+    color: #fff;
+}
+.btn-cancelar {
+    background-color: #6c757d;
+    color: #fff;
+}
+.btn-confirmar:hover {
+    background-color: #fff;
+    color: #ec4c45;
+    border: 1px solid #ec4c45;
+}
+.btn-cancelar:hover {
+    background-color: #5a6268;
+}
+/* ALERTA */
+.alert-float {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ec4c45;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 2000;
+    font-weight: 500;
+    animation: fadeSlide 0.5s ease;
+}
+.alert-success {
+    background-color: #ec4c45 !important;
+}
+.alert-error {
+    background-color: #ec4c45 !important;
+}
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+</style>
+
+<div class="form-container">
+    <div class="alert-float" id="alert-float"></div>
+
+    <h2 class="form-title">Crear Secciones</h2>
+    <form method="POST" id="form-seccion">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Rack</label>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle w-100 text-start" type="button" id="dropdownRack" data-bs-toggle="dropdown" aria-expanded="false">
+                    Selecciona un rack
+                </button>
+                <ul class="dropdown-menu w-100" id="dropdown-menu-rack">
+                    {% for pa in obtener_racks %}
+                    <li><a class="dropdown-item" href="#" data-id="{{ pa.id }}"> {{ pa.titulo }} - {{ pa.descripcion }} </a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <input type="hidden" name="pasillo" id="pasillo" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nivel</label>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle w-100 text-start" type="button" id="dropdownNivel" data-bs-toggle="dropdown" aria-expanded="false">
+                    Selecciona primero un rack
+                </button>
+                <ul class="dropdown-menu w-100" id="dropdown-menu-nivel">
+                    <li><a class="dropdown-item disabled" href="#">Selecciona primero un rack</a></li>
+                </ul>
+            </div>
+            <input type="hidden" name="planta" id="planta" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-semibold d-block">Códigos de Sección</label>
+            <div id="contenedor-codigos">
+                <input type="text" name="codigo_seccion[]" class="form-control mb-2" placeholder="Ejemplo: PL1-A01" required>
+            </div>
+            <div class="levels-row mt-2">
+                <div class="action-card" id="agregar-codigo-card">+</div>
+                <div class="action-card" id="quitar-codigo-card">-</div>
+            </div>
+        </div>
+
+        <div id="secciones-creadas" class="mb-4">
+            <label class="form-label fw-semibold">Secciones existentes</label>
+            <div class="levels-row" id="cards-container"></div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-guardar"> Crear Secciones </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+
+    const colors = ["#0d6efd", "#1dd47fff", "#dc3545", "#fd7e14", "#6f42c1", "#20c997"];
+
+    function showAlert(message, type = "info", duration = 3000, callback = null) {
+        const alertBox = $("#alert-float");
+        alertBox.removeClass("alert-success alert-error");
+
+        if (type === "success") alertBox.addClass("alert-success");
+        else if (type === "error") alertBox.addClass("alert-error");
+
+        alertBox.stop(true, true).text(message).fadeIn(300);
+
+        setTimeout(() => {
+            alertBox.fadeOut(500, function(){
+                if (callback) callback();
+            });
+        }, duration);
+    }
+
+    function showConfirm(message, onConfirm) {
+        const modal = $(`
+            <div class="modal-confirm">
+                <div class="modal-content-confirm">
+                    <h4>${message}</h4>
+                    <div class="modal-buttons">
+                        <button class="btn-confirmar">Confirmar</button>
+                        <button class="btn-cancelar">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `);
+        $("body").append(modal);
+        modal.find(".btn-confirmar").click(function(){
+            modal.remove();
+            onConfirm();
+        });
+        modal.find(".btn-cancelar").click(function(){
+            modal.remove();
+        });
+    }
+
+    function cargarSecciones(nivelId) {
+        if (!nivelId) return;
+        $.ajax({
+            url: "{% url 'get_secciones_por_nivel' %}",
+            data: { planta_id: nivelId },
+            success: function(data) {
+                const container = $("#cards-container");
+                container.empty();
+                if (data.length > 0) {
+                    data.forEach((sec, index) => {
+                        const cardWrapper = $(`
+                            <div class="card-wrapper">
+                                <button type="button" class="btn-eliminar-card">Eliminar</button>
+                                <div class="level-card" data-id="${sec.id}" style="background-color:${colors[index % colors.length]};">
+                                    <strong>${sec.codigo}</strong>
+                                    <span>Código</span>
+                                </div>
+                            </div>
+                        `);
+                        container.append(cardWrapper);
+                    });
+                } else {
+                    container.append('<div class="level-card" style="background-color:#0d6efd;">No hay secciones aún</div>');
+                }
+            },
+            error: function(){
+                showAlert("Error al cargar las secciones.", "error");
+            }
+        });
+    }
+
+    // Racks
+    $("#dropdown-menu-rack").on("click","a.dropdown-item", function(e){
+        e.preventDefault();
+        if($(this).hasClass("disabled")) return;
+        const rackId = $(this).data("id");
+        $("#dropdownRack").text($(this).text());
+        $("#pasillo").val(rackId);
+        $("#dropdown-menu-rack a").removeClass("active");
+        $(this).addClass("active");
+
+        $.ajax({
+            url: "{% url 'get_niveles_por_rack' %}",
+            data: { rack_id: rackId },
+            success: function(data){
+                const menuNivel = $("#dropdown-menu-nivel");
+                menuNivel.empty();
+                if(data.length > 0){
+                    data.forEach(function(nivel){
+                        menuNivel.append(`<li><a class="dropdown-item" href="#" data-id="${nivel.id}">${nivel.titulo} - ${nivel.descripcion}</a></li>`);
+                    });
+                    $("#dropdownNivel").text("-- Selecciona un nivel --");
+                    $("#planta").val("");
+                    $("#cards-container").empty();
+                } else {
+                    menuNivel.append('<li><a class="dropdown-item disabled" href="#">No hay niveles disponibles</a></li>');
+                    $("#dropdownNivel").text("No hay niveles");
+                    $("#planta").val("");
+                    $("#cards-container").empty();
+                }
+            },
+            error: function(){
+                showAlert("Error al cargar niveles.", "error");
+            }
+        });
+    });
+
+    // Niveles
+    $("#dropdown-menu-nivel").on("click", "a.dropdown-item", function(e){
+        e.preventDefault();
+        if($(this).hasClass("disabled")) return;
+        const nivelId = $(this).data("id");
+        $("#dropdownNivel").text($(this).text());
+        $("#planta").val(nivelId);
+        $("#dropdown-menu-nivel a").removeClass("active");
+        $(this).addClass("active");
+        cargarSecciones(nivelId);
+    });
+
+    // Agregar/Quitar inputs
+    $("#agregar-codigo-card").click(function() {
+        $("#contenedor-codigos").append('<input type="text" name="codigo_seccion[]" class="form-control mb-2" placeholder="Ejemplo: PL1-A02" required>');
+    });
+    $("#quitar-codigo-card").click(function() {
+        let inputs = $("#contenedor-codigos input");
+        if(inputs.length > 1){ inputs.last().remove(); }
+    });
+
+    // Eliminar sección
+    $("#cards-container").on("click", ".btn-eliminar-card", function(){
+        const cardWrapper = $(this).parent();
+        const seccionId = cardWrapper.find(".level-card").data("id");
+        showConfirm("¿Deseas eliminar esta sección?", function(){
+            $.ajax({
+                url: "{% url 'eliminar_seccion' %}",
+                method: "POST",
+                data: { 'id': seccionId, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                success: function(response){
+                    if(response.status === "ok"){
+                        cardWrapper.remove();
+                        showAlert("Sección eliminada correctamente.", "success");
+                    } else {
+                        showAlert("Error: " + response.message, "error");
+                    }
+                },
+                error: function(){
+                    showAlert("Ocurrió un error al eliminar la sección.", "error");
+                }
+            });
+        });
+    });
+
+    // Crear sección (mantener notificación 3 segundos)
+    $("#form-seccion").submit(function(e){
+        e.preventDefault(); // detener envío inmediato
+        let codigos = [];
+        let duplicado = false;
+
+        $("input[name='codigo_seccion[]']").each(function(){
+            const val = $(this).val().trim();
+            if(codigos.includes(val)){
+                duplicado = true;
+                return false;
+            }
+            codigos.push(val);
+        });
+
+        if(duplicado){
+            showAlert("Error: Código de sección repetido.", "error");
+            return;
+        }
+
+        // Mostrar notificación y luego enviar
+        showAlert("Sección creada correctamente.", "success", 3000, function(){
+            $("#form-seccion")[0].submit(); // envío real después de 3s
+        });
+    });
+
+});
+</script>
+{% endblock Maincrear_seccion %}

@@ -1,0 +1,117 @@
+{% extends "layouts/base1.html" %}
+
+{% block Maincrear_seguimiento %}
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.45);
+    }
+    .form-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #ec4c45;
+        border-bottom: 2px solid #ec4c45;
+        padding-bottom: 10px;
+    }
+    .table thead {
+        background-color: #ec4c45;
+        color: white;
+    }
+    .table tbody tr:hover {
+        background-color: #f8d7da;
+    }
+    .btn-custom {
+        background-color: #ec4c45 !important;
+        border-color: #ec4c45 !important;
+        color: white !important;
+    }
+    .search-bar {
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="form-container">
+    <!-- Mensajes -->
+    <div class="alert-container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <h2 class="form-title">Seguimiento de Movimientos</h2>
+
+    <!-- Barra de búsqueda -->
+    <div class="search-bar input-group mb-3">
+        <input type="text" class="form-control" id="searchInput" placeholder="Buscar por descripción, estado o responsable...">
+        <button class="btn btn-custom" type="button" id="btnBuscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center" id="tablaSeguimiento">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Responsable</th>
+                    <th>Rack</th>
+                    <th>Nivel</th>
+                    <th>Sección</th>
+                    <th>Proveedor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mov in seguimiento_historial %}
+                    <tr>
+                        <td>{{ mov.fecha|date:"d/m/Y H:i" }}</td>
+                        <td>{{ mov.descripcion }}</td>
+                        <td>{% if mov.estado %}{{ mov.estado }}{% else %}-{% endif %}</td>
+                        <td>{% if mov.responsable %}{{ mov.responsable }}{% else %}-{% endif %}</td>
+                        <td>{% if mov.ubicacion %}{{ mov.ubicacion.rack.titulo }}{% else %}-{% endif %}</td>
+                        <td>{% if mov.ubicacion %}{{ mov.ubicacion.nivel.titulo }}{% else %}-{% endif %}</td>
+                        <td>{% if mov.ubicacion and mov.ubicacion.seccion %}{{ mov.ubicacion.seccion.codigo }}{% else %}-{% endif %}</td>
+                        <td>{% if mov.ubicacion %}{{ mov.ubicacion.proveedor.nombre }}{% else %}-{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-muted">No hay movimientos registrados aún.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{% url 'crear_ubicacion' %}" class="btn btn-custom">
+            <i class="fa-solid fa-plus"></i> Crear Nueva Ubicación
+        </a>
+    </div>
+</div>
+
+<script>
+    // Filtro de búsqueda
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        let input = this.value.toLowerCase();
+        let filas = document.querySelectorAll("#tablaSeguimiento tbody tr");
+
+        filas.forEach(fila => {
+            let texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(input) ? "" : "none";
+        });
+    });
+</script>
+
+<footer class="text-center mt-5 mb-4 text-muted">
+    <p>Tiliners © 2030</p>
+</footer>
+{% endblock Maincrear_seguimiento %}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Gestión - Menú Horizontal</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+body {
+    background: #f5f7fa;
+}
+
+/* NAVBAR */
+.navbar-custom {
+    background: linear-gradient(135deg, #ec4c45  0%, #ec4c45  100%);
+    padding: 10px 0;
+}
+
+.navbar-custom .navbar-brand {
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Contenedor de ítems del menú */
+.navbar-custom .nav-item {
+    margin: 5px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+/* Enlace del ítem */
+.navbar-custom .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    width: 45px;
+    transition: all 0.6s ease;
+}
+
+/* Texto del ítem (oculto al inicio) */
+.navbar-custom .nav-link span {
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    margin-left: 8px;
+    display: inline-block;
+    transition: opacity 0.6s ease, max-width 0.6s ease;
+}
+
+/* Hover o activo: desktop */
+@media (min-width: 993px) {
+    .navbar-custom .nav-item:hover .nav-link,
+    .navbar-custom .nav-item.active .nav-link {
+        background-color: white;
+        color: #ec4c45;
+        width: auto;
+        justify-content: center;
+        padding-left: 15px;
+        padding-right: 15px;
+        transition: padding 0.6s ease, background-color 0.6s ease;
+    }
+    .navbar-custom .nav-item:hover .nav-link span,
+    .navbar-custom .nav-item.active .nav-link span {
+        opacity: 1;
+        max-width: 300px;
+        transition: opacity 0.6s ease, max-width 0.6s ease;
+    }
+    .navbar-custom .nav-item:hover i,
+    .navbar-custom .nav-item.active i {
+        color: #ec4c45;
+        transition: color 0.6s ease;
+    }
+}
+
+/* Iconos */
+.navbar-custom .nav-link i {
+    font-size: 1.2rem;
+    transition: color 0.3s ease, background 0.3s ease;
+}
+
+/* Ajustes responsive para celular */
+@media (max-width: 992px) {
+    .navbar-custom {
+        background: transparent;
+        padding: 10px;
+    }
+    .navbar-brand {
+        color: white;
+        text-align: center;
+        display: block;
+        font-size: 1.8rem;
+        background-color: #ec4c45;
+        padding: 15px 0;
+        width: 100%; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .icon-card {
+        position: fixed;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        border-radius: 10px;
+    }
+
+    .icon-card .card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+        border-radius: 10px;
+        padding: 0; 
+        overflow: hidden;
+        transition: height 0.3s ease, padding 0.3s ease;
+        height: 60px;
+    }
+
+    .icon-card.expanded .card-content {
+        height: auto;
+        padding: 10px 0; 
+    }
+
+    .icon-card .toggle-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 10px;
+        background: white;
+        color: #ec4c45;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    .icon-card .nav-link:not(.toggle-icon) {
+        display: none;
+        width: 50px;
+        height: 50px;
+        margin: 5px 0;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        background: white;
+        color: #ec4c45;
+        transition: all 0.3s ease;
+    }
+
+    .icon-card.expanded .nav-link:not(.toggle-icon) {
+        display: flex;
+    }
+
+    .icon-card .nav-link:not(.toggle-icon).active,
+    .icon-card .nav-link:not(.toggle-icon):active {
+        background: #ec4c45;
+        color: white;
+    }
+
+    .icon-card .nav-link span {
+        display: none;
+    }
+
+    .navbar-collapse {
+        display: none !important;
+    }
+
+    .navbar-toggler {
+        display: none;
+    }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">Sistema de Gestión</a>
+
+        <!-- Card de iconos móvil -->
+        <div class="icon-card d-lg-none">
+            <div class="card-content">
+                <a class="nav-link toggle-icon" href="javascript:void(0);">
+                    <i class="bi bi-list"></i>
+                </a>
+                <a class="nav-link" href="{% url 'index' %}">
+                    <i class="bi bi-house-fill"></i>
+                </a>
+                <a class="nav-link" href="{% url 'crear_ubicacion' %}">
+                    <i class="bi bi-box-seam"></i>
+                </a>
+                <a class="nav-link" href="{% url 'crear_rack' %}">
+                    <i class="bi bi-search"></i>
+                </a>
+                <a class="nav-link" href="{% url 'panel_control' %}">
+                    <i class="bi bi-gear"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Desktop navbar -->
+        <div class="navbar-collapse d-none d-lg-flex" id="navbarMenu">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">
+                        <i class="bi bi-house-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'crear_ubicacion' %}">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Asignar Ubicación Palet</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'crear_rack' %}">
+                        <i class="bi bi-search"></i>
+                        <span>Seguimiento</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'panel_control' %}">
+                        <i class="bi bi-gear"></i>
+                        <span>Panel de control</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    {% block Mainindex %}{% endblock Mainindex %}
+    {% block Maincrear_nivel%}{% endblock Maincrear_nivel%}
+    {% block Maincrear_rack %}{% endblock Maincrear_rack %}
+    {% block Maincrear_ubicacion %}{% endblock Maincrear_ubicacion %}
+    {% block Maincrear_proovedor %}{% endblock Maincrear_proovedor %}
+    {% block Maincrear_seccion %}{% endblock Maincrear_seccion %}
+    {% block Mainpanel_control %}{% endblock Mainpanel_control %}
+</div>
+
+<script src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // --- MOBILE ICON CARD ---
+    const toggleIcon = document.querySelector(".icon-card .toggle-icon");
+    const iconCard = document.querySelector(".icon-card");
+
+    if (toggleIcon && iconCard) {
+        toggleIcon.addEventListener("click", function() {
+            iconCard.classList.toggle("expanded");
+        });
+    }
+
+    // --- DESKTOP ACTIVE STATE ---
+    const navLinks = document.querySelectorAll(".navbar-custom .navbar-nav .nav-link");
+    const currentUrl = window.location.pathname;
+    navLinks.forEach(link => {
+        if (link.getAttribute("href") === currentUrl) {
+            link.parentElement.classList.add("active");
+        }
+        link.addEventListener("click", function() {
+            navLinks.forEach(l => l.parentElement.classList.remove("active"));
+            this.parentElement.classList.add("active");
+        });
+    });
+});
+</script>
+
+</body>
+</html>

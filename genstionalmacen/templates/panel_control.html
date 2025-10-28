@@ -1,0 +1,259 @@
+{% extends "layouts/base1.html" %}
+
+{% block Mainpanel_control %}
+
+<style>
+    /* Cards estilo moderno */
+    .card-menu {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        box-shadow: 0 16px 35px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Asegura altura uniforme */
+    }
+
+    .card-menu:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 22px 45px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Color del ícono */
+    .card-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        color: #ec4c45;
+        transition: color 0.3s ease;
+    }
+
+    .card-menu:hover .card-icon {
+        color: #d43b36;
+    }
+
+    /* Título y texto */
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .card-text {
+        color: #555;
+        font-size: 1rem;
+    }
+
+    /* Botón normal de las cards */
+    .btn-card {
+        background: #ec4c45;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+        padding: 10px 0; 
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .btn-card:hover {
+        background: white;
+        color: #ec4c45;
+        border: 2px solid #ec4c45;
+        transform: scale(1.05);
+    }
+
+    /* Números de las cards (solo los que se mantienen) */
+    .card-number {
+        position: absolute;
+        top: 12px;
+        right: 18px;
+        background-color: #ec4c45;
+        color: white;
+        font-weight: bold;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        border-radius: 50%;
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        justify-content: space-between;
+    }
+
+    .card-body .btn-card {
+        margin-top: auto;
+    }
+
+    /* Botón rojo especial para eliminar todo */
+    .btn-delete {
+        background-color: #b41f1a;
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+        padding: 10px 0; 
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    /* Hover invierte colores igual que los botones normales */
+    .btn-delete:hover {
+        background: white;
+        color: #b41f1a;
+        border: 2px solid #b41f1a;
+        transform: scale(1.05);
+    }
+
+    /* Estilo del contenedor de alertas */
+    .alerta-custom {
+        background-color: #fff8e1;
+        border: 2px solid #f0c14b;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        margin-bottom: 25px;
+    }
+
+    .alerta-custom h4 {
+        color: #b41f1a;
+        font-weight: bold;
+    }
+
+    .alerta-vacia {
+        background-color: #e0f7fa;
+        border: 2px solid #00acc1;
+        color: #006064;
+        padding: 20px;
+        text-align: center;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Alineación horizontal uniforme de todas las cards */
+    .row.cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        align-items: stretch;
+    }
+    .row.cards-row > .col-md-6.col-lg-3 {
+        display: flex;
+    }
+</style>
+
+<div class="container mt-4">
+
+    <header class="text-center mb-5 py-4">
+        <h1 class="display-4"><i class="bi bi-gear" style="color:#ec4c45;"></i></h1>
+        <h2 class="display-4">Panel de Control</h2>
+    </header>
+
+    {% if mostrar_confirmacion %}
+    <!-- Alerta de confirmación -->
+    <div class="alerta-custom">
+        <h4>⚠️ Confirmar eliminación total</h4>
+        <p>¿Estás seguro de que deseas eliminar todos los registros del sistema? Esta acción no se puede deshacer.</p>
+        <form method="post" action="{% url 'eliminar_todo' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger px-4 me-3">Sí, eliminar todo</button>
+            <a href="{% url 'panel_control' %}" class="btn btn-secondary px-4">Cancelar</a>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if sin_datos %}
+    <!-- Alerta de base de datos vacía -->
+    <div class="alerta-vacia">
+        <i class="bi bi-info-circle-fill"></i>
+        <p class="mt-2 mb-0">No hay datos existentes para eliminar.</p>
+    </div>
+    {% endif %}
+
+    <div class="row g-4 justify-content-center cards-row">
+
+        <!-- Card 1: Crear Rack -->
+        <div class="col-md-6 col-lg-3 d-flex">
+            <div class="card card-menu text-center py-5 position-relative flex-fill">
+                <div class="card-number">1</div>
+                <div class="card-body">
+                    <div>
+                        <i class="bi bi-bookshelf card-icon"></i>
+                        <h3 class="card-title">Crear Rack</h3>
+                        <p class="card-text px-3">Añade nuevos racks al sistema</p>
+                    </div>
+                    <a href="{% url 'crear_rack' %}" class="btn btn-card mt-3 rounded-pill">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Crear Nivel -->
+        <div class="col-md-6 col-lg-3 d-flex">
+            <div class="card card-menu text-center py-5 position-relative flex-fill">
+                <div class="card-number">2</div>
+                <div class="card-body">
+                    <div>
+                        <i class="bi bi-stack card-icon"></i>
+                        <h3 class="card-title">Crear Nivel de Rack</h3>
+                        <p class="card-text px-3">Añade nuevos niveles al rack</p>
+                    </div>
+                    <a href="{% url 'crear_nivel' %}" class="btn btn-card mt-3 rounded-pill">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Crear Sección -->
+        <div class="col-md-6 col-lg-3 d-flex">
+            <div class="card card-menu text-center py-5 position-relative flex-fill">
+                <div class="card-number">3</div>
+                <div class="card-body">
+                    <div>
+                        <i class="bi bi-grid-3x3-gap-fill card-icon"></i>
+                        <h3 class="card-title">Crear Sección</h3>
+                        <p class="card-text px-3">Añade nuevas secciones dentro de un nivel</p>
+                    </div>
+                    <a href="{% url 'crear_seccion' %}" class="btn btn-card mt-3 rounded-pill">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Crear Proveedor -->
+        <div class="col-md-6 col-lg-3 d-flex">
+            <div class="card card-menu text-center py-5 position-relative flex-fill">
+                <div class="card-body">
+                    <div>
+                        <i class="bi bi-truck card-icon"></i>
+                        <h3 class="card-title">Crear Proveedor</h3>
+                        <p class="card-text px-3">Añade proveedores del sistema</p>
+                    </div>
+                    <a href="{% url 'crear_proveedor' %}" class="btn btn-card mt-3 rounded-pill">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5: Eliminar todo -->
+        <div class="col-md-6 col-lg-3 d-flex">
+            <div class="card card-menu text-center py-5 position-relative flex-fill">
+                <div class="card-body">
+                    <div>
+                        <i class="bi bi-exclamation-octagon-fill card-icon" style="color:#b41f1a;"></i>
+                        <h3 class="card-title">Eliminar todo</h3>
+                        <p class="card-text px-3">Borra todos los registros de la base de datos</p>
+                    </div>
+                    <a href="{% url 'eliminar_todo' %}" class="btn btn-delete mt-3 rounded-pill">Eliminar registros</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock Mainpanel_control %}

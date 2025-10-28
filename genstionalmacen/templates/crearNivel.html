@@ -1,0 +1,363 @@
+{% extends "layouts/base1.html" %}
+
+{% block Maincrear_nivel %}
+
+<!-- ===========================
+     ESTILOS DEL FORMULARIO Y CARD
+=========================== -->
+<style>
+    /* --- estilos existentes, los dejamos igual --- */
+    .form-container {
+        max-width: 700px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.45);
+    }
+    .form-title { text-align: center; margin-bottom: 30px; color: #ec4c45; border-bottom: 2px solid #ec4c45; padding-bottom: 10px; }
+    .btn-custom { width: 100%; padding: 12px; font-weight: bold; background-color: #ec4c45 !important; border-color: #ec4c45 !important; color: #ffffff !important; transition: all 0.3s; }
+    .btn-custom:hover { background-color: #ffffff !important; color: #ec4c45 !important; border-color: #ec4c45 !important; }
+    .btn-custom.clicked { background-color: #ffffff !important; color: #ec4c45 !important; border-color: #ec4c45 !important; }
+    .alert-container { max-width: 700px; margin: 20px auto; }
+    .disabled-field { opacity: 0.5; pointer-events: none; }
+    .mini-card-square.disabled-card { opacity: 0.5; pointer-events: none; background-color: #ec4c45cc !important; }
+
+    .levels-row { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .levels-header { display: flex; gap: 10px; margin-bottom: 5px; }
+    .levels-header div { font-weight: bold; text-align: center; flex-shrink: 0; }
+    .level-number-header { width: 50px; }
+    .level-desc-header { flex: 1; }
+
+    .level-item { display: flex; flex-direction: column; gap: 5px; position: relative; }
+    .level-buttons { display: flex; justify-content: flex-end; gap: 5px; margin-bottom: 3px; }
+    .level-buttons button { padding: 4px 8px; font-size: 0.75rem; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; transition: all 0.2s; }
+    .edit-btn { background-color: #ffc107; color: #000; }
+    .edit-btn:hover { background-color: #e0a800; color: #fff; }
+    .delete-btn { background-color: #dc3545; color: #fff; }
+    .delete-btn:hover { background-color: #b02a37; }
+
+    .level-content { display: flex; gap: 10px; align-items: stretch; }
+    .level-number-card { width: 50px; padding: 12px; border-radius: 8px; color: white; font-weight: bold; display: flex; justify-content: center; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.15); flex-shrink: 0; }
+    .level-desc-card { flex: 1; padding: 12px 20px; border-radius: 8px; color: white; font-weight: 500; position: relative; box-shadow: 0 1px 4px rgba(0,0,0,0.15); word-break: break-word; transition: background-color 0.3s; }
+
+    #empty-level-card .level-number-card, #empty-level-card .level-desc-card { min-width: 50px; min-height: 50px; display: flex; justify-content: center; align-items: center; }
+    #empty-level-card .level-desc-card { background-color: #6c757d !important; color: #fff !important; }
+
+    .mini-card-square { display: flex; gap: 10px; padding: 12px; border-radius: 8px; background-color: #ec4c45; color: white; font-weight: bold; min-width: 150px; min-height: 80px; text-align: center; justify-content: center; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; }
+    .mini-card-section { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 5px; }
+    .mini-card-section span { font-size: 0.85rem; color: #ffffffcc; margin-top: 3px; }
+    .input-mini-flex { display: flex; align-items: center; gap: 15px; width: 100%; }
+
+    .dropdown-toggle { width: 100%; text-align: left; border-color: #ec4c45 !important; color: #000000; }
+    .dropdown-toggle:hover, .dropdown-toggle:focus, .dropdown-toggle.show { background-color: #ec4c45 !important; color: #ffffff !important; border-color: #ec4c45 !important; }
+    .dropdown-menu .dropdown-item:hover, .dropdown-menu .dropdown-item.active, .dropdown-menu .dropdown-item:focus { background-color: #ec4c45 !important; color: #ffffff !important; }
+
+    .overlay-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .overlay-card { background-color: #fff; padding: 30px; border-radius: 12px; width: 500px; max-width: 90%; box-shadow: 0 8px 25px rgba(0,0,0,0.35); text-align: center; }
+    .overlay-card h5 { margin-bottom: 15px; }
+    .overlay-card ul { list-style: none; padding-left: 0; margin-top: 10px; text-align: left; }
+    .overlay-card ul li { margin-bottom: 5px; }
+    .overlay-card button { margin-top: 10px; width: 45%; }
+
+    .success-card { max-width: 400px; margin: 15px auto; padding: 15px 20px; background-color: #198754; color: white; border-radius: 10px; text-align: center; font-weight: bold; box-shadow: 0 1px 6px rgba(0,0,0,0.2); transition: all 0.3s; }
+</style>
+
+<div class="container">
+    <div class="alert-container mt-3"></div>
+    <div id="successMessageContainer"></div>
+
+    <div class="form-container">
+        <h2 class="form-title">Añadir Nivel al Rack</h2>
+
+        <form method="post" id="crearNivelForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Seleccionar Rack</label>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownRack" data-bs-toggle="dropdown" aria-expanded="false">
+                        Selecciona un rack
+                    </button>
+                    <ul class="dropdown-menu w-100" id="dropdown-menu-rack">
+                        {% for e in datos_racks %}
+                            <li>
+                                <a class="dropdown-item" href="#" data-id="{{ e.id }}">
+                                    {{ e.titulo }} - {{ e.descripcion }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <input type="hidden" id="lista_estanteria" name="lista_estanteria" required>
+            </div>
+
+            <div id="info-estanteria" class="d-none">
+                <strong id="rack-title"></strong>
+                <div class="levels-header">
+                    <div class="level-number-header">Nivel</div>
+                    <div class="level-desc-header">Descripción</div>
+                </div>
+                <div class="levels-row" id="cards-container">
+                    <div class="level-item" id="empty-level-card">
+                        <div class="level-content">
+                            <div class="level-number-card" style="background-color:#6c757d;">-</div>
+                            <div class="level-desc-card" style="background-color:#6c757d;">No hay niveles</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12 d-flex input-mini-flex">
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <label for="codPlanta" class="form-label mb-1">Código de Nivel</label>
+                        <input type="text" class="form-control disabled-field" id="codPlanta" name="codPlanta" disabled required>
+                        <div class="form-text mt-1">Código único para identificar el nivel</div>
+                    </div>
+                    <div class="mini-card-square disabled-card" id="miniCardContainer">
+                        <div class="mini-card-section">
+                            <div id="numPlanta">0</div><span>Siguiente Nivel</span>
+                        </div>
+                        <div class="mini-card-section">
+                            <div id="maxPlantas">0</div><span>Máximo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="descPlanta" class="form-label">Descripción</label>
+                <textarea class="form-control disabled-field" id="descPlanta" name="descPlanta" rows="3" disabled required></textarea>
+                <div class="form-text">Describe las características o propósito de este nivel</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-custom disabled-field" id="crearNivelBtn" disabled>
+                Crear Nivel
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="modalOverlay" class="overlay-modal" style="display:none;">
+    <div class="overlay-card" id="overlayCard"></div>
+</div>
+
+<script>
+const colors = ["#0d6efd", "#1dd47f", "#dc3545", "#fd7e14", "#6f42c1", "#20c997"];
+let colorIndex = 0;
+
+document.addEventListener("DOMContentLoaded", function() {
+    const dropdownRackMenu = document.getElementById("dropdown-menu-rack");
+    const dropdownRackBtn = document.getElementById("dropdownRack");
+    const hiddenRackInput = document.getElementById("lista_estanteria");
+    const codInput = document.getElementById("codPlanta");
+    const descInput = document.getElementById("descPlanta");
+    const crearBtn = document.getElementById("crearNivelBtn");
+    const miniCardContainer = document.getElementById("miniCardContainer");
+    const modalOverlay = document.getElementById("modalOverlay");
+    const overlayCard = document.getElementById("overlayCard");
+    const formCrear = document.getElementById("crearNivelForm");
+    const successContainer = document.getElementById("successMessageContainer");
+    const cardsContainer = document.getElementById("cards-container");
+    const numPlantaDiv = document.getElementById("numPlanta");
+    const maxPlantasDiv = document.getElementById("maxPlantas");
+
+    function activarCampos() {
+        codInput.disabled = false; codInput.classList.remove("disabled-field");
+        descInput.disabled = false; descInput.classList.remove("disabled-field");
+        crearBtn.disabled = false; crearBtn.classList.remove("disabled-field");
+        miniCardContainer.classList.remove("disabled-card");
+    }
+
+    function actualizarNumeracion() {
+        const levelCards = cardsContainer.querySelectorAll(".level-item .level-number-card");
+        levelCards.forEach((card, index) => { card.textContent = index+1; });
+        numPlantaDiv.textContent = levelCards.length + 1;
+    }
+
+    function crearLevelCard(p){
+        const emptyCard = document.getElementById("empty-level-card");
+        if(emptyCard){ emptyCard.remove(); }
+
+        const item = document.createElement("div");
+        item.classList.add("level-item");
+
+        const color = colors[colorIndex % colors.length];
+        colorIndex++;
+
+        const btnContainer = document.createElement("div");
+        btnContainer.classList.add("level-buttons");
+
+        const editBtn = document.createElement("button");
+        editBtn.classList.add("edit-btn");
+        editBtn.type = "button";
+        editBtn.textContent = "Editar";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("delete-btn");
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "Eliminar";
+
+        btnContainer.appendChild(editBtn);
+        btnContainer.appendChild(deleteBtn);
+
+        const contentDiv = document.createElement("div");
+        contentDiv.classList.add("level-content");
+
+        const numberCard = document.createElement("div");
+        numberCard.classList.add("level-number-card");
+        numberCard.style.backgroundColor = color;
+
+        // Número secuencial
+        const currentLevelCount = cardsContainer.querySelectorAll(".level-item").length;
+        numberCard.textContent = currentLevelCount + 1;
+
+        const descCard = document.createElement("div");
+        descCard.classList.add("level-desc-card");
+        descCard.style.backgroundColor = color;
+        const descText = document.createElement("span");
+        descText.textContent = p.descripcion;
+        descCard.appendChild(descText);
+
+        contentDiv.appendChild(numberCard);
+        contentDiv.appendChild(descCard);
+        item.appendChild(btnContainer);
+        item.appendChild(contentDiv);
+
+        // Eventos edit y delete (igual que antes)
+        editBtn.addEventListener("click", function(e){
+            e.stopPropagation();
+            overlayCard.innerHTML = `<h5>Editar Nivel ${p.numero}</h5><textarea class="form-control" rows="4">${p.descripcion}</textarea>
+            <div style="margin-top:15px;">
+                <button class="btn btn-warning me-2" id="saveBtn">Guardar</button>
+                <button class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+            </div>`;
+            modalOverlay.style.display="flex";
+            const textarea = overlayCard.querySelector("textarea");
+            overlayCard.querySelector("#saveBtn").addEventListener("click", function(){
+                fetch("{% url 'editar_nivel' %}", {
+                    method:"POST",
+                    headers:{"Content-Type":"application/json","X-CSRFToken":"{{ csrf_token }}"},
+                    body: JSON.stringify({id:p.id,descripcion:textarea.value})
+                }).then(res=>res.json()).then(data=>{
+                    if(data.success){ p.descripcion = textarea.value.toUpperCase(); descText.textContent=p.descripcion; modalOverlay.style.display="none"; }
+                    else alert("Error: "+data.error);
+                });
+            });
+            overlayCard.querySelector("#cancelBtn").addEventListener("click", ()=> modalOverlay.style.display="none");
+        });
+
+        deleteBtn.addEventListener("click", function(e){
+            e.stopPropagation();
+            let seccionesHTML = "<ul>";
+            if(p.secciones && p.secciones.length > 0){ p.secciones.forEach(s => { seccionesHTML += `<li>Código: ${s.codigo}</li>`; }); } 
+            else seccionesHTML += "<li>No hay secciones</li>";
+            seccionesHTML += "</ul>";
+
+            overlayCard.innerHTML=`<h5>Eliminar Nivel ${p.numero}</h5>
+            <p><strong>Descripción:</strong> ${p.descripcion}</p>
+            <p><strong>Códigos de secciones asociadas:</strong></p>${seccionesHTML}
+            <p>Esta acción es irreversible.</p>
+            <div style="margin-top:15px;">
+                <button class="btn btn-danger me-2" id="confirmDeleteBtn">Confirmar</button>
+                <button class="btn btn-secondary" id="cancelDeleteBtn">Cancelar</button>
+            </div>`;
+            modalOverlay.style.display="flex";
+
+            overlayCard.querySelector("#confirmDeleteBtn").addEventListener("click", ()=>{
+                fetch("{% url 'eliminar_nivel' %}", {
+                    method:"POST",
+                    headers:{"Content-Type":"application/x-www-form-urlencoded","X-CSRFToken":"{{ csrf_token }}"},
+                    body:"nivel_id="+p.id
+                }).then(res=>res.json()).then(data=>{
+                    if(data.success){ 
+                        item.remove(); 
+                        modalOverlay.style.display="none"; 
+                        if(cardsContainer.children.length === 0){
+                            const emptyItem = document.createElement("div"); 
+                            emptyItem.classList.add("level-item"); 
+                            emptyItem.id = "empty-level-card";
+                            const contentDiv = document.createElement("div"); 
+                            contentDiv.classList.add("level-content");
+                            const numCard = document.createElement("div"); 
+                            numCard.classList.add("level-number-card"); 
+                            numCard.style.backgroundColor = "#6c757d"; 
+                            numCard.textContent="-";
+                            const descCard = document.createElement("div"); 
+                            descCard.classList.add("level-desc-card"); 
+                            descCard.style.backgroundColor = "#6c757d";
+                            descCard.textContent="No hay niveles";
+                            contentDiv.appendChild(numCard); 
+                            contentDiv.appendChild(descCard);
+                            emptyItem.appendChild(contentDiv);
+                            cardsContainer.appendChild(emptyItem);
+                        }
+                        actualizarNumeracion();
+                    } else alert("Error: "+data.error);
+                });
+            });
+
+            overlayCard.querySelector("#cancelDeleteBtn").addEventListener("click", ()=> modalOverlay.style.display="none");
+        });
+
+        return item;
+    }
+
+    dropdownRackMenu.addEventListener("click", function(e){
+        if(e.target.matches("a.dropdown-item")){
+            e.preventDefault();
+            const selectedText = e.target.textContent; 
+            const selectedId = e.target.dataset.id;
+            dropdownRackBtn.textContent = selectedText; hiddenRackInput.value = selectedId;
+            dropdownRackMenu.querySelectorAll("a.dropdown-item").forEach(a=>a.classList.remove("active"));
+            e.target.classList.add("active");
+            activarCampos();
+            colorIndex = 0;
+            fetch(`/get-info-rack/${selectedId}/`).then(res=>res.json()).then(data=>{
+                document.getElementById("info-estanteria").classList.remove("d-none");
+                document.getElementById("rack-title").textContent = `${data.titulo} - ${data.descripcion}`;
+                cardsContainer.innerHTML = "";
+                const niveles = data.niveles || [];
+                if(niveles.length === 0){
+                    const emptyItem = document.createElement("div"); emptyItem.classList.add("level-item"); emptyItem.id="empty-level-card";
+                    const contentDiv = document.createElement("div"); contentDiv.classList.add("level-content");
+                    const numCard = document.createElement("div"); numCard.classList.add("level-number-card"); numCard.style.backgroundColor="#6c757d"; numCard.textContent="-";
+                    const descCard = document.createElement("div"); descCard.classList.add("level-desc-card"); descCard.style.backgroundColor="#6c757d"; descCard.textContent="No hay niveles";
+                    contentDiv.appendChild(numCard); contentDiv.appendChild(descCard);
+                    emptyItem.appendChild(contentDiv);
+                    cardsContainer.appendChild(emptyItem);
+                } else {
+                    niveles.forEach((p)=> cardsContainer.appendChild(crearLevelCard(p)));
+                }
+                actualizarNumeracion();
+                maxPlantasDiv.textContent = data.secciones_maximas;
+            });
+        }
+    });
+
+    formCrear.addEventListener("submit", function(e){
+        e.preventDefault();
+        const formData = new FormData(formCrear);
+        fetch("{% url 'crear_nivel' %}", { method:"POST", body:formData })
+        .then(res=>res.json())
+        .then(data=>{
+            if(data.success){
+                successContainer.innerHTML = `<div class="success-card">Nivel "${data.nivel_descripcion}" creado con éxito.</div>`;
+                setTimeout(()=> successContainer.innerHTML="",3000);
+                cardsContainer.appendChild(crearLevelCard(data.nivel));
+                actualizarNumeracion();
+                formCrear.reset();
+            } else alert("Error: "+data.error);
+        })
+        .catch(err=>alert("Error en la solicitud: "+err));
+    });
+
+    crearBtn.addEventListener("click", function(){ this.classList.toggle("clicked"); });
+});
+</script>
+
+<footer class="text-center mt-5 mb-4 text-muted">
+    <p>Tiliners © 2030</p>
+</footer>
+
+{% endblock Maincrear_nivel %}
