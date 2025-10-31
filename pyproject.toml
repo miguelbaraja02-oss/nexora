@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nexora"
+version = "0.1.0"
+description = "Sistema de gestión para almacenes"
+readme = "readme.md"
+authors = [{ name = "Nexora", email = "you@example.com" }]
+
+keywords = ["django", "uvicorn", "asgi"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Framework :: Django",
+  "License :: OSI Approved :: MIT License"
+]
+
+dependencies = [
+  "Django>=4.2",
+  "uvicorn[standard]>=0.22.0",
+  "asgiref>=3.6"
+]
