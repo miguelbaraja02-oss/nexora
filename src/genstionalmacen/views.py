@@ -3,12 +3,19 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import racks, niveles, proveedores, secciones1, ubicaciones
 from django.db import transaction
+import os
+
 # -----------------------------
 # VISTA PRINCIPAL
 # -----------------------------
 def index(request):
     listas_ubicaciones = ubicaciones.objects.all()
-    return render(request, 'index.html', {"listas_ubicaciones": listas_ubicaciones})
+    context = {
+        "listas_ubicaciones": listas_ubicaciones,
+        "OPENROUTER_API_KEY": os.environ.get("OPENROUTER_API_KEY", ""),
+        "DEEPSEEK_API_KEY": os.environ.get("DEEPSEEK_API_KEY", "")
+    }
+    return render(request, 'index.html', context)
 
 
 

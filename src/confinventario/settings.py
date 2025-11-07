@@ -10,8 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+# Cargar variables de entorno desde .env
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Carga el archivo .env ubicado en la raíz del proyecto (BASE_DIR)
+dotenv_path = os.path.join(str(Path(__file__).resolve().parent.parent.parent), '.env')
+load_dotenv(dotenv_path)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +26,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o5ycm3)bxh*!ebam2al@)=n%6i)mk#u09*zy-#*xy51#^537vr'
+# Read the secret key from an environment variable in production. For local
+# development a non-sensitive fallback is used. Set `DJANGO_SECRET_KEY` in
+# production and treat it as secret.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-dev-placeholder-secret",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Control DEBUG with DJANGO_DEBUG env var (true/1/yes => True).
+DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() in ("1", "true", "yes")
 
-ALLOWED_HOSTS = ['*']
+# Allow setting ALLOWED_HOSTS via comma-separated env var in production.
+# If not set, keep the permissive default only for local development.
+ALLOWED_HOSTS = (
+    os.environ.get("DJANGO_ALLOWED_HOSTS").split(",")
+    if os.environ.get("DJANGO_ALLOWED_HOSTS")
+    else ["*"]
+)
 
 
 # Application definition

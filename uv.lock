@@ -106,6 +106,7 @@ source = { editable = "." }
 dependencies = [
     { name = "asgiref" },
     { name = "django" },
+    { name = "python-dotenv" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -113,6 +114,7 @@ dependencies = [
 requires-dist = [
     { name = "asgiref", specifier = ">=3.6" },
     { name = "django", specifier = ">=4.2" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.22.0" },
 ]
 

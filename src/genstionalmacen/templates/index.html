@@ -613,7 +613,7 @@ Si NO cumple con lo anterior, rechaza la pregunta cortésmente y NO proporciones
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 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',
+                    'Authorization': 'Bearer ' + (window.OPENROUTER_API_KEY || ''),
                     'HTTP-Referer': window.location.origin,
                     'X-Title': 'Sistema de Gestión de Palets - Yarbis'
                 },
@@ -668,6 +668,8 @@ Si NO cumple con lo anterior, rechaza la pregunta cortésmente y NO proporciones
             ];
         }
     }
+// Cargar claves desde variables de entorno expuestas por Django
+window.OPENROUTER_API_KEY = '{{ OPENROUTER_API_KEY|default:"" }}';
 </script>
 
 {% endblock %}
