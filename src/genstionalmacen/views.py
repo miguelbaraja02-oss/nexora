@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import racks, niveles, proveedores, secciones1, ubicaciones
 from django.db import transaction
 import os
+import requests
 
 # -----------------------------
 # VISTA PRINCIPAL
@@ -12,8 +13,7 @@ def index(request):
     listas_ubicaciones = ubicaciones.objects.all()
     context = {
         "listas_ubicaciones": listas_ubicaciones,
-        "OPENROUTER_API_KEY": os.environ.get("OPENROUTER_API_KEY", ""),
-        "DEEPSEEK_API_KEY": os.environ.get("DEEPSEEK_API_KEY", "")
+        # API keys must NOT be exposed to the frontend. Backend will proxy requests.
     }
     return render(request, 'index.html', context)
 
@@ -361,6 +361,49 @@ def get_info_rack(request, rack_id):
         "secciones_maximas": secciones_maximas,
         "niveles": niveles_list
     })
+
+
+# -----------------------------
+# PROXY PARA OPENROUTER
+# -----------------------------
+@csrf_exempt
+def openrouter_proxy(request):
+    """Recibe POST desde el frontend y reenvía la petición a OpenRouter usando
+    la clave almacenada en las variables de entorno del servidor.
+    """
+    if request.method != 'POST':
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+    try:
+        payload = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"error": "JSON inválido"}, status=400)
+
+    api_key = os.environ.get("OPENROUTER_API_KEY", "")
+    if not api_key:
+        return JsonResponse({"error": "OPENROUTER_API_KEY no configurada en el servidor"}, status=500)
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}',
+        'X-Forwarded-For': request.META.get('REMOTE_ADDR', ''),
+        'X-Title': request.headers.get('X-Title', 'frontend-proxy')
+    }
+
+    try:
+        resp = requests.post(
+            'https://openrouter.ai/api/v1/chat/completions',
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+
+        # Reenvía el contenido tal cual y el status code
+        content_type = resp.headers.get('Content-Type', 'application/json')
+        return HttpResponse(resp.content, status=resp.status_code, content_type=content_type)
+
+    except requests.RequestException as e:
+        return JsonResponse({"error": "Error al comunicarse con OpenRouter", "detail": str(e)}, status=502)
 
 
 
