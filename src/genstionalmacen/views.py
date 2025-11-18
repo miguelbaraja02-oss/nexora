@@ -537,6 +537,13 @@ def crear_ubicacion(request):
         nivel_id = request.POST.get("planta")
         seccion_id = request.POST.get("seccion")
         proveedor_id = request.POST.get("proveedor")
+        # cantidad: cantidad de unidades en el palet/ubicación
+        try:
+            cantidad = int(request.POST.get("cantidad") or 1)
+            if cantidad < 1:
+                cantidad = 0
+        except (ValueError, TypeError):
+            cantidad = 0
         
         
         print(f"codigo: {codigo}")
@@ -579,7 +586,8 @@ def crear_ubicacion(request):
             nivel=nivel_obj,
             seccion=seccion_obj,
             proveedor=proveedor_obj,
-            disponible=False
+            disponible=False,
+            cantidad=cantidad
         )
 
         messages.success(request, f"Ubicación '{codigo}' creada en rack '{rack_obj.titulo}', nivel '{nivel_obj.titulo}', sección '{seccion_obj.codigo}' (ID:{seccion_obj.id}).")

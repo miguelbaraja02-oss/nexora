@@ -74,6 +74,8 @@ class ubicaciones(models.Model):
     proveedor = models.ForeignKey(proveedores, null=False, on_delete=models.CASCADE)
     descripcion_palet = models.TextField(max_length=200)
     disponible = models.BooleanField(default=True)
+    # Nueva columna: cantidad de unidades en la ubicación (palets/ítems)
+    cantidad = models.IntegerField(default=1)
 
     def __str__(self):
         return (
