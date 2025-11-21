@@ -609,12 +609,11 @@ Si NO cumple con lo anterior, rechaza la pregunta cortésmente y NO proporciones
         showTypingIndicator();
 
         try {
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            // Llamamos al endpoint del backend que actúa como proxy para OpenRouter.
+            const response = await fetch('/api/openrouter_proxy/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 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',
-                    'HTTP-Referer': window.location.origin,
                     'X-Title': 'Sistema de Gestión de Palets - Yarbis'
                 },
                 body: JSON.stringify({
@@ -668,6 +667,8 @@ Si NO cumple con lo anterior, rechaza la pregunta cortésmente y NO proporciones
             ];
         }
     }
+// Nota: la clave ya no se expone al frontend. El backend la almacena en variables de entorno
+// y actúa como proxy en /api/openrouter_proxy/.
 </script>
 
 {% endblock %}

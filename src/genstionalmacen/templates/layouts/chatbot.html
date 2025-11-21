@@ -79,7 +79,7 @@ async function sendMessage(message) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer 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'
+                'Authorization': 'Bearer ' + (window.DEEPSEEK_API_KEY || '')
             },
             body: JSON.stringify({
                 message: message
@@ -114,4 +114,6 @@ input.addEventListener('keypress', (e) => {
         sendMessage(input.value);
     }
 });
+// Cargar clave desde variable de entorno expuesta por Django
+window.DEEPSEEK_API_KEY = '{{ DEEPSEEK_API_KEY|default:"" }}';
 </script>
