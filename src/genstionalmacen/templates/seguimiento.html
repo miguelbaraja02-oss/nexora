@@ -47,11 +47,11 @@
         {% endif %}
     </div>
 
-    <h2 class="form-title">Seguimiento de Movimientos</h2>
+    <h2 class="form-title">Seguimiento de Palets</h2>
 
     <!-- Barra de búsqueda -->
     <div class="search-bar input-group mb-3">
-        <input type="text" class="form-control" id="searchInput" placeholder="Buscar por descripción, estado o responsable...">
+        <input type="text" class="form-control" id="searchInput" placeholder="Buscar por código, descripción, rack, nivel, sección o proveedor...">
         <button class="btn btn-custom" type="button" id="btnBuscar"><i class="fa-solid fa-magnifying-glass"></i></button>
     </div>
 
@@ -60,10 +60,9 @@
         <table class="table table-bordered align-middle text-center" id="tablaSeguimiento">
             <thead>
                 <tr>
-                    <th>Fecha</th>
+                    <th>Código</th>
                     <th>Descripción</th>
                     <th>Estado</th>
-                    <th>Responsable</th>
                     <th>Rack</th>
                     <th>Nivel</th>
                     <th>Sección</th>
@@ -71,20 +70,19 @@
                 </tr>
             </thead>
             <tbody>
-                {% for mov in seguimiento_historial %}
+                {% for u in ubicaciones %}
                     <tr>
-                        <td>{{ mov.fecha|date:"d/m/Y H:i" }}</td>
-                        <td>{{ mov.descripcion }}</td>
-                        <td>{% if mov.estado %}{{ mov.estado }}{% else %}-{% endif %}</td>
-                        <td>{% if mov.responsable %}{{ mov.responsable }}{% else %}-{% endif %}</td>
-                        <td>{% if mov.ubicacion %}{{ mov.ubicacion.rack.titulo }}{% else %}-{% endif %}</td>
-                        <td>{% if mov.ubicacion %}{{ mov.ubicacion.nivel.titulo }}{% else %}-{% endif %}</td>
-                        <td>{% if mov.ubicacion and mov.ubicacion.seccion %}{{ mov.ubicacion.seccion.codigo }}{% else %}-{% endif %}</td>
-                        <td>{% if mov.ubicacion %}{{ mov.ubicacion.proveedor.nombre }}{% else %}-{% endif %}</td>
+                        <td>{{ u.codigo }}</td>
+                        <td>{{ u.descripcion_palet }}</td>
+                        <td>{% if u.disponible %}Disponible{% else %}Ocupado{% endif %}</td>
+                        <td>{{ u.rack.titulo }}</td>
+                        <td>{{ u.nivel.titulo }}</td>
+                        <td>{% if u.seccion %}{{ u.seccion.codigo }}{% else %}-{% endif %}</td>
+                        <td>{{ u.proveedor.nombre }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="8" class="text-muted">No hay movimientos registrados aún.</td>
+                        <td colspan="7" class="text-muted">No hay ubicaciones registradas aún.</td>
                     </tr>
                 {% endfor %}
             </tbody>

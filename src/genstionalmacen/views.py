@@ -18,6 +18,18 @@ def index(request):
     return render(request, 'index.html', context)
 
 
+# -----------------------------
+# VISTA: SEGUIMIENTO DE PALETS
+# -----------------------------
+def seguimiento(request):
+    print(ubicaciones.objects.all())
+    """Lista todas las ubicaciones (palets) junto con sus relaciones
+    (rack, nivel, seccion, proveedor) para visualización en la página de seguimiento.
+    """
+    ubicaciones_qs = ubicaciones.objects.all()
+    return render(request, 'seguimiento.html', {'ubicaciones': ubicaciones_qs})
+
+
 
 def eliminar_todo(request):
     # Verifica si hay datos antes de eliminar
