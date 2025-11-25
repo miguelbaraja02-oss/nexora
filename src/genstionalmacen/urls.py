@@ -28,6 +28,11 @@ urlpatterns = [
     path('get-niveles-por-rack/', views.get_niveles_por_rack, name='get_niveles_por_rack'),
     path('get-secciones-por-nivel/', views.get_secciones_por_nivel, name='get_secciones_por_nivel'),
     path('get-info-rack/<int:rack_id>/', views.get_info_rack, name='get_info_rack'),
+    # Proxy backend para OpenRouter: evita exponer la API key en el frontend
+    path('api/openrouter_proxy/', views.openrouter_proxy, name='openrouter_proxy'),
+
+    # Seguimiento
+    path('seguimiento/', views.seguimiento, name='seguimiento'),
 
     # Eliminar todo
     path('eliminar-todo/', views.eliminar_todo, name='eliminar_todo'),

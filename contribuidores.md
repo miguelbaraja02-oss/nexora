@@ -1,2 +1,3 @@
-Miguel Baraja
-Sheyla Cerón
+- Miguel Baraja
+- Sheyla Cerón
+- Edwin Cevallos

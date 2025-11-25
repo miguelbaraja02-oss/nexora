@@ -19,5 +19,7 @@ classifiers = [
 dependencies = [
   "Django>=4.2",
   "uvicorn[standard]>=0.22.0",
-  "asgiref>=3.6"
+  "asgiref>=3.6",
+  "python-dotenv>=1.2.1",
+  "requests>=2.32.5",
 ]
